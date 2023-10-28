@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/timoothy21/task-5-pbi-btpns-TimothyTheophilusHartono/controllers/usercontroller"
+	"github.com/timoothy21/task-5-pbi-btpns-TimothyTheophilusHartono/middleware"
 	"github.com/timoothy21/task-5-pbi-btpns-TimothyTheophilusHartono/models"
 )
 
@@ -14,6 +15,7 @@ func main() {
 	r.POST("/users/login", usercontroller.Login)
 	r.PUT("/users/:userId", usercontroller.Update)
 	r.DELETE("/users/:userId", usercontroller.Delete)
+	r.GET("/users/validate", middleware.RequireAuth, usercontroller.Validate)
 
 	r.Run()
 }

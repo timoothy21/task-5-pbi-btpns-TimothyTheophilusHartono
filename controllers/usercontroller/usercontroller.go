@@ -1,10 +1,13 @@
 package usercontroller
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/timoothy21/task-5-pbi-btpns-TimothyTheophilusHartono/models"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -56,7 +59,23 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	c.AbortWithStatusJSON(http.StatusAccepted, gin.H{"user": user})
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": user.Id,
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+	})
+
+	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET")))
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Invalid to create token"})
+		fmt.Println(err)
+		return
+	}
+
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("Authorization", tokenString, 3600*24, "", "", false, true)
+
+	c.AbortWithStatusJSON(http.StatusAccepted, gin.H{"user": user, "token": tokenString})
 
 }
 
@@ -88,4 +107,13 @@ func Delete(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "data has been deleted"})
+}
+
+func Validate(c *gin.Context) {
+	user, _ := c.Get("user")
+
+	c.AbortWithStatusJSON(http.StatusOK, gin.H{
+		"message": "i'm logged in",
+		"user":    user,
+	})
 }
