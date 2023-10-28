@@ -104,17 +104,18 @@ func Delete(c *gin.Context) {
 
 	if models.DB.Model(&user).Delete(&user, userId).RowsAffected == 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Data can't deleted"})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "data has been deleted"})
 }
 
-func Validate(c *gin.Context) {
-	user, _ := c.Get("user")
+// func Validate(c *gin.Context) {
+// 	user, _ := c.Get("user")
 
-	c.AbortWithStatusJSON(http.StatusOK, gin.H{
-		"message": "i'm logged in",
-		"user":    user.(models.User),
-		"userId":  user.(models.User).ID,
-	})
-}
+// 	c.AbortWithStatusJSON(http.StatusOK, gin.H{
+// 		"message": "i'm logged in",
+// 		"user":    user.(models.User),
+// 		"userId":  user.(models.User).ID,
+// 	})
+// }

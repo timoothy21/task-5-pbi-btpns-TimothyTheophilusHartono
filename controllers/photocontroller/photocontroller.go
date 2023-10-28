@@ -40,3 +40,38 @@ func ViewPhoto(c *gin.Context) {
 		"photo":   photos,
 	})
 }
+
+func UpdatePhoto(c *gin.Context) {
+	var photo models.Photo
+	photoId := c.Param("photoId")
+
+	if err := c.ShouldBindJSON(&photo); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	user, _ := c.Get("user")
+
+	if models.DB.Model(&photo).Where("user_id = ?", user.(models.User).ID).Where("id = ?", photoId).Updates(&photo).RowsAffected == 0 {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "data can't be updated"})
+		return
+	}
+
+	c.AbortWithStatusJSON(http.StatusAccepted, gin.H{
+		"message": "photo updated!",
+	})
+}
+
+func DeletePhoto(c *gin.Context) {
+	var photo models.Photo
+	photoId := c.Param("photoId")
+
+	user, _ := c.Get("user")
+
+	if models.DB.Model(&photo).Where("user_id = ?", user.(models.User).ID).Delete(&photo, photoId).RowsAffected == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Data can't deleted"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "data has been deleted"})
+}

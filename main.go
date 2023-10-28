@@ -16,9 +16,11 @@ func main() {
 	r.POST("/users/login", usercontroller.Login)
 	r.PUT("/users/:userId", usercontroller.Update)
 	r.DELETE("/users/:userId", usercontroller.Delete)
-	r.GET("/users/validate", middleware.RequireAuth, usercontroller.Validate)
+	// r.GET("/users/validate", middleware.RequireAuth, usercontroller.Validate)
 
-	r.POST("/photo", middleware.RequireAuth, photocontroller.AddPhoto)
-	r.GET("/photo", photocontroller.ViewPhoto)
+	r.POST("/photos", middleware.RequireAuth, photocontroller.AddPhoto)
+	r.GET("/photos", photocontroller.ViewPhoto)
+	r.PUT("/photos/:photoId", middleware.RequireAuth, photocontroller.UpdatePhoto)
+	r.DELETE("/photos/:photoId", middleware.RequireAuth, photocontroller.DeletePhoto)
 	r.Run()
 }
