@@ -15,7 +15,8 @@ func Register(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	user.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+
+	user.CreatedAt = time.Now()
 
 	models.DB.Create(&user)
 	c.JSON(http.StatusOK, gin.H{"user": user})
@@ -34,7 +35,7 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	user.UpdateAt = time.Now().Format("2006-01-02 15:04:05")
+	user.UpdateAt = time.Now()
 
 	if models.DB.Model(&user).Where("id = ?", userId).Updates(&user).RowsAffected == 0 {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "data not found"})
