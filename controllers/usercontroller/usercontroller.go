@@ -46,9 +46,9 @@ func Login(c *gin.Context) {
 	}
 
 	var user models.User
-	models.DB.First(&user, "email = ?", body.Email)
+	models.DB.Preload("Photos").First(&user, "email = ?", body.Email)
 
-	if user.Id == 0 {
+	if user.ID == 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Invalid email or password"})
 		return
 	}
@@ -60,7 +60,7 @@ func Login(c *gin.Context) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.Id,
+		"sub": user.ID,
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 
@@ -88,7 +88,7 @@ func Update(c *gin.Context) {
 		return
 	}
 
-	user.UpdateAt = time.Now()
+	user.UpdatedAt = time.Now()
 
 	if models.DB.Model(&user).Where("id = ?", userId).Updates(&user).RowsAffected == 0 {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "data not found"})
@@ -114,6 +114,7 @@ func Validate(c *gin.Context) {
 
 	c.AbortWithStatusJSON(http.StatusOK, gin.H{
 		"message": "i'm logged in",
-		"user":    user,
+		"user":    user.(models.User),
+		"userId":  user.(models.User).ID,
 	})
 }

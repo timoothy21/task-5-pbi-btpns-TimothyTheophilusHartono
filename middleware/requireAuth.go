@@ -39,7 +39,7 @@ func RequireAuth(c *gin.Context) {
 		var user models.User
 		models.DB.First(&user, claims["sub"])
 
-		if user.Id == 0 {
+		if user.ID == 0 {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "login first"})
 			return
 		}
