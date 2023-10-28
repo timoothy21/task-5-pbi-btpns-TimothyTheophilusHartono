@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/timoothy21/task-5-pbi-btpns-TimothyTheophilusHartono/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func Register(c *gin.Context) {
@@ -16,6 +17,15 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Failed to hash password"})
+		return
+	}
+
+	user.Password = string(hash)
+
 	user.CreatedAt = time.Now()
 
 	models.DB.Create(&user)
@@ -23,6 +33,30 @@ func Register(c *gin.Context) {
 }
 
 func Login(c *gin.Context) {
+	var body struct {
+		Email    string
+		Password string
+	}
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"messages": "Failed to read body"})
+	}
+
+	var user models.User
+	models.DB.First(&user, "email = ?", body.Email)
+
+	if user.Id == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Invalid email or password"})
+		return
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "Invalid email or password"})
+		return
+	}
+
+	c.AbortWithStatusJSON(http.StatusAccepted, gin.H{"user": user})
 
 }
 

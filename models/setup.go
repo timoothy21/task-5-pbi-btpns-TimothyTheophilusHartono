@@ -8,7 +8,7 @@ import (
 var DB *gorm.DB
 
 func ConnectDatabase() {
-	database, err := gorm.Open(mysql.Open("root:@tcp(localhost:3306)/pbi_btpns"))
+	database, err := gorm.Open(mysql.Open("root:@tcp(localhost:3306)/pbi_btpns?parseTime=true"))
 	if err != nil {
 		panic(err)
 	}
